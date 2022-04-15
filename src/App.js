@@ -1,61 +1,52 @@
-import React ,{useState} from 'react';
-import ToDoList from './ToDoList';
-import reactDom from 'react-dom';
-//import { useState } from 'react/cjs/react.production.min';
-const App=()=>{
-    const [inputList,newInputList]=useState("buy apple");
-    const[items,setItems]=useState([]);
-const inputEvent=(event)=>{
-    newInputList(event.target.value);
+import React, { useState, useEffect } from "react";
+import { Card, Button } from "antd";
+import axios from "axios";
+import "./App.css";
+
+const { Meta } = Card;
+
+// npx create-react-app appname
+// npm i antd
+// npm i axios
+
+function App() {
+  const [news, setNews] = useState([]);
+  const loadNews = async () => {
+    const response = await axios.get(
+      "https://newsapi.org/v2/top-headlines?country=us&apiKey=122516e9656a48ea87a5a61fd52090f7"
+    );
+    setNews(response.data.articles);
+  };
+  useEffect(() => {
+
+    loadNews();
+  }, []);
+
+  console.log("news", news);
+
+  return (
+    <div className="App">
+          
+      {news &&
+        news.map((item, index) => {
+          return (
+            <Card
+              key={index}
+              hoverable
+              style={{ width: "50%" }}
+              cover={<img alt="image" src={item.urlToImage} style={{ width: "50%",height:"50%" }} />}
+            >
+              <Meta title={item.title} description={item.content} />
+              <a href={item.url} target="_blank" rel="noopener noreferrer">
+                <Button type="primary" style={{ marginTop: "10px" }}>
+                  Read More
+                </Button>
+              </a>
+            </Card>
+          );
+        })}
+    </div>
+  );
 }
-const deleteItems=(id)=>{
-   // console.log("deleted");
-   setItems((oldItems)=>{
-       return oldItems.filter((arrayElement,index)=>{
-           return id!=index;
-       });
-   });
-};
-const listOfItems=()=>{
-setItems((temarr)=>{
-    return [...temarr,inputList];
-    newInputList("");
-});
-}
-return (
-    <>
-        <div className='app'>
-            <div className='center__div'>
-            <br></br>
-                <h1>TODO_LIST</h1>
-                <br></br>
-                <input type="text"
-                 placeholder='Enter the item'
-                 value={inputList}
-                 onChange={inputEvent}  />
-                <button onClick={ listOfItems}>+</button>
-                <ol>
-                   
-                     {  items.map((itemval,index)=>{
-                           return (
-                               <ToDoList key={index}
-                                text={itemval}
-                                    id={index}
-                                    onSelect={deleteItems}
-                                />
-                              // <li>{itemval}</li>
-                           )
-                       }
 
-
-                       )}
-                   
-                </ol>
-
-            </div>
-        </div>
-    </>
-)
-
-}
 export default App;
